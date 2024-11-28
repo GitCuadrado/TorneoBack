@@ -1,0 +1,6 @@
+@CopaAnalAPI_HostAddress = http://localhost:5232
+
+GET {{CopaAnalAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
