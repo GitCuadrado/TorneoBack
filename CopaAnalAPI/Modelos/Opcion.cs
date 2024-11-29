@@ -4,6 +4,6 @@
     {
         public string id { get; set; }
         public string nombre { get; set; }
-        public string estado { get; set; }
+        public bool opcionSeleccionada { get; set; }
     }
 }

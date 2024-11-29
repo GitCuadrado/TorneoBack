@@ -9,85 +9,7 @@ namespace CopaAnalAPI.Servicios
     {
         private string _cnnString;
         //-------------DATA PRUEBA-------------
-        private List<Opcion> opciones = new List<Opcion>() {
-            new Opcion(){
-                 id="1",
-                 nombre="Lucas"
-            },
-            new Opcion(){
-                 id="2",
-                 nombre="Gaston"
-            },
-            new Opcion(){
-                 id="3",
-                 nombre="Alex"
-            },
-            new Opcion(){
-                 id="4",
-                 nombre="Uvetio"
-            },
-            new Opcion(){
-                 id="1",
-                 nombre="Cana"
-            },
-            new Opcion(){
-                 id="2",
-                 nombre="Cerda"
-            },
-            new Opcion(){
-                 id="3",
-                 nombre="Bruno"
-            },
-            new Opcion(){
-                 id="4",
-                 nombre="Cris"
-            },
-            new Opcion(){
-                 id="1",
-                 nombre="Guille"
-            },
-            new Opcion(){
-                 id="2",
-                 nombre="Joel"
-            },
-            new Opcion(){
-                 id="3",
-                 nombre="Viroga"
-            },
-            new Opcion(){
-                 id="4",
-                 nombre="Bri"
-            }
-        };
-        private List<Grupo> exampleData = new List<Grupo>()
-        {
-           new Grupo()
-           {
-               id="1",
-               nombre="Partida mas rapida"               
-           },
-           new Grupo()
-           {
-               id="2",
-               nombre="Partida mas lenta"
-           },
-           new Grupo()
-           {
-               id="3",
-               nombre="Campeon anal"
-           },
-           new Grupo()
-           {
-               id="4",
-               nombre="Primero en irse"
-           }
 
-        };
-        private Usuario usuarioPrueba = new Usuario() {
-            id="1",
-            nombre="pichula",
-            puntos="0"
-        };
         //-------------FIN DATA PRUEBA-------------
         public DataService(string cnnString = "Server=DESKTOP-0J12S18;Database=TorneoAnal;Integrated Security=True;") :base(cnnString) { 
             this._cnnString = cnnString;
@@ -108,15 +30,19 @@ namespace CopaAnalAPI.Servicios
                     var grupo = new GrupoET();
                     grupo.IdGrupo = row["idGrupo"].ToString();
                     grupo.nombreGrupo = row["nombreGrupo"].ToString();
+                    grupo.grupoCerrado = Boolean.Parse(row["grupoCerrado"].ToString());
+                    grupo.puntos = row["puntos"].ToString();
+                    grupo.opcionCorrecta = row["opcionCorrecta"].ToString();
+
                     grupo.idOpcion = row["idOpcion"].ToString();
                     grupo.nombreOpcion = row["nombreOpcion"].ToString();
-                    grupo.estado = row["estado"].ToString();
+                    grupo.opcionSeleccionada = Boolean.Parse(row["opcionSeleccionada"].ToString());
                     entidadesGrupos.Add(grupo);
                 }
 
                 rt = entidadesGrupos
-                    .GroupBy(groupBy => new { groupBy.IdGrupo, groupBy.nombreGrupo })
-                    .Select(sGrupo => new Grupo() { id = sGrupo.Key.IdGrupo, nombre = sGrupo.Key.nombreGrupo, opciones = sGrupo.ToList().Select(sOpc => new Opcion() { id = sOpc.idOpcion,estado =sOpc.estado ,nombre = sOpc.nombreOpcion }).ToList() }).ToList();
+                    .GroupBy(groupBy => new { groupBy.IdGrupo, groupBy.nombreGrupo,groupBy.grupoCerrado,groupBy.puntos,groupBy.opcionCorrecta })
+                    .Select(sGrupo => new Grupo() { id = sGrupo.Key.IdGrupo, nombre = sGrupo.Key.nombreGrupo,grupoCerrado=sGrupo.Key.grupoCerrado,puntos=sGrupo.Key.puntos,opcionCorrecta = sGrupo.Key.opcionCorrecta, opciones = sGrupo.ToList().Select(sOpc => new Opcion() { id = sOpc.idOpcion,opcionSeleccionada =sOpc.opcionSeleccionada ,nombre = sOpc.nombreOpcion }).ToList() }).ToList();
             
             
             }
@@ -125,12 +51,12 @@ namespace CopaAnalAPI.Servicios
         }
         public List<Grupo> getPredicciones()
         {
-            this.exampleData.ForEach(x => x.opciones[0] = this.opciones[0]);
+            //this.exampleData.ForEach(x => x.opciones[0] = this.opciones[0]);
 
-            return this.exampleData;
+            return null;
         }
         public Usuario GetUsuario(string idUsuario) {
-            return this.usuarioPrueba;
+            return null;
         }
 
         public async Task<bool> ActualizarPrediccion(string usuario, string idGrupo, string idOpcion)
