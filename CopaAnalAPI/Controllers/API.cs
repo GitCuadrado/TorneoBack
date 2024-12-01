@@ -7,29 +7,39 @@ namespace CopaAnalAPI.Controllers
     [Route("[controller]")]
     public class API : ControllerBase
     {
+        private DataService _dataSvc;
+        public API(DataService dataSvc) {
+            this._dataSvc = dataSvc;
+        }
         [HttpGet("grupos/{usuario}")]
         public async Task<JsonResult> grupos(string usuario)
         {
-            var ds = new DataService();
-            return new JsonResult(await ds.getGrupos(usuario));
+            return new JsonResult(await _dataSvc.getGrupos(usuario));
+        }
+        [HttpGet("ranking")]
+        public async Task<JsonResult> ranking()
+        {
+            return new JsonResult(await _dataSvc.getRanking());
+        }
+        [HttpGet("premios")]
+        public async Task<JsonResult> premios()
+        {
+            return new JsonResult(await _dataSvc.getPremios());
         }
         [HttpGet("predicciones")]
         public JsonResult predicciones()
         {
-            var ds = new DataService();
-            return new JsonResult(ds.getPredicciones());
+            return new JsonResult(_dataSvc.getPredicciones());
         }
         [HttpGet("actualizarPrediccion/{usuario}/{idGrupo}/{idOpcion}")]
         public async Task<JsonResult> usuario(string usuario,string idGrupo,string idOpcion)
         {
-            var ds = new DataService();
-            return new JsonResult(await ds.ActualizarPrediccion(usuario,idGrupo,idOpcion));
+            return new JsonResult(await _dataSvc.ActualizarPrediccion(usuario,idGrupo,idOpcion));
         }
         [HttpGet("usuario/{usuario}")]
         public JsonResult usuario(string usuario)
         {
-            var ds = new DataService();
-            return new JsonResult(ds.GetUsuario(""));
+            return new JsonResult(_dataSvc.GetUsuario(""));
         }
     }
 }

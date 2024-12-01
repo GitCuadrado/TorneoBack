@@ -9,10 +9,10 @@ namespace CopaAnalAPI.Servicios
     {
         private string _cnnString;
         //-------------DATA PRUEBA-------------
-
+        //string cnnString = "Server=DESKTOP-0J12S18;Database=TorneoAnal;Integrated Security=True;"
         //-------------FIN DATA PRUEBA-------------
-        public DataService(string cnnString = "Server=DESKTOP-0J12S18;Database=TorneoAnal;Integrated Security=True;") :base(cnnString) { 
-            this._cnnString = cnnString;
+        public DataService(IConfiguration _config) { 
+            this._cnnString = _config.GetConnectionString("DBConn");
         }
         public async Task<List<Grupo>> getGrupos(string usuario)
         {
@@ -21,7 +21,7 @@ namespace CopaAnalAPI.Servicios
             var prams = new Dictionary<string, string>();
             prams.Add("@usuario", usuario);
 
-            var ds = await this.ExecuteStoredProcedure("ObtenerGrupos",prams);
+            var ds = await this.ExecuteStoredProcedure(this._cnnString,"ObtenerGrupos",prams);
 
             if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
             {
@@ -66,11 +66,64 @@ namespace CopaAnalAPI.Servicios
             prams.Add("@usuario", usuario);
             prams.Add("@idGrupo", idGrupo);
             prams.Add("@idOpcion", idOpcion);
-            var ds = await this.ExecuteStoredProcedure("ActualizarPrediccion",prams);
+            var ds = await this.ExecuteStoredProcedure(this._cnnString, "ActualizarPrediccion",prams);
 
             if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
             {
                 rt = true;
+            }
+
+            return rt;
+        }
+        public async Task<List<Ranking>> getRanking()
+        {
+            var rt = new List<Ranking>();
+            var entidadesRanking = new List<RankingET>();
+
+            var ds = await this.ExecuteStoredProcedure(this._cnnString,"ObtenerClasificacion");
+
+            if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow row in ds.Tables[0].Rows)
+                {
+                    var grupo = new RankingET();
+                    grupo.nombreGrupo = row["nombreGrupo"].ToString();
+                    grupo.usuario = row["usuario"].ToString();
+                    grupo.puntos = row["puntos"].ToString();
+                    entidadesRanking.Add(grupo);
+                }
+
+                rt = entidadesRanking
+                    .GroupBy(groupBy => new { groupBy.usuario})
+                    .Select(sGrupo => new Ranking() {nombre = sGrupo.Key.usuario, puntos = sGrupo.Sum(p => Int32.Parse(p.puntos)).ToString(),aciertos = sGrupo.Count().ToString() ,gruposAcertados = sGrupo.ToList().Select(sOpc => new Grupo() { nombre = sOpc.nombreGrupo }).ToList() }).ToList();
+
+
+            }
+
+            return rt;
+        }
+        public async Task<List<Premio>> getPremios()
+        {
+            var rt = new List<Premio>();
+            var entidadesPremio = new List<PremioET>();
+
+            var ds = await this.ExecuteStoredProcedure(this._cnnString, "ObtenerPremios");
+
+            if (ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow row in ds.Tables[0].Rows)
+                {
+                    var grupo = new PremioET();
+                    grupo.nombreGrupo = row["nombreGrupo"].ToString();
+                    grupo.nombreOpcion = row["nombreOpcion"].ToString();
+                    entidadesPremio.Add(grupo);
+                }
+
+                rt = entidadesPremio
+                    .GroupBy(groupBy => new { groupBy.nombreOpcion })
+                    .Select(sGrupo => new Premio() { nombre = sGrupo.Key.nombreOpcion, gruposGanados = sGrupo.ToList().Select(sOpc => new Grupo() { nombre = sOpc.nombreGrupo }).ToList() }).ToList();
+
+
             }
 
             return rt;

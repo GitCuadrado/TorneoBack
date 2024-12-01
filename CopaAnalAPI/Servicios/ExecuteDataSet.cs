@@ -5,17 +5,15 @@ namespace CopaAnalAPI.Servicios
 {
     public class ExecuteDataSet
     {
-        private string _cnnString;
-        public ExecuteDataSet(string cnnString) { 
-            this._cnnString = cnnString;
+        public ExecuteDataSet() { 
         } 
-        public async Task<DataSet> ExecuteStoredProcedure(string storedProcedureName,Dictionary<string,string> prams= null)
+        public async Task<DataSet> ExecuteStoredProcedure(string cnnString,string storedProcedureName,Dictionary<string,string> prams= null)
         {
             DataSet dataSet = new DataSet();
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(this._cnnString))
+                using (SqlConnection connection = new SqlConnection(cnnString))
                 {
                     await connection.OpenAsync();
                     using (SqlCommand command = new SqlCommand(storedProcedureName, connection))
